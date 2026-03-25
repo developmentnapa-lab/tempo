@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoškola Tempo – Mostar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+============================================================ */
+:root {
+  --black:        #000000;
+  --black-2:      #0a0a0a;
+  --surface:      #0f0f0f;
+  --surface-2:    #1a1a1a;
+  --border:       rgba(255,255,255,0.08);
+  --border-hover: rgba(255,107,35,0.4);
+  --orange:       #ff6b23;
+  --orange-light: #ff7d3d;
+  --orange-dim:   rgba(255,107,35,0.12);
+  --white:        #ffffff;
+  --white-70:     rgba(255,255,255,0.70);
+  --white-40:     rgba(255,255,255,0.40);
+  --white-10:     rgba(255,255,255,0.10);
+  --ease:         cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in:      cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+/* ============================================================
+   RESET & BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+  line-height: 1.6;
+}
+
+img { display: block; max-width: 100%; }
+a { text-decoration: none; }
+ul { list-style: none; }
+button { cursor: pointer; border: none; background: none; font: inherit; }
+
+/* ============================================================
+   CUSTOM CURSOR
+============================================================ */
+.cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--orange); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.15s var(--ease), width 0.3s var(--ease), height 0.3s var(--ease), background 0.3s;
+  will-change: left, top;
+}
+.cursor-ring {
+  position: fixed; width: 34px; height: 34px;
+  border: 1.5px solid rgba(232,76,14,0.55); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width 0.35s var(--ease), height 0.35s var(--ease);
+  will-change: left, top;
+}
+.cursor.hover { transform: translate(-50%,-50%) scale(2.2); background: rgba(232,76,14,0.45); }
+.cursor-ring.hover { width: 58px; height: 58px; }
+
+@media (pointer: coarse) {
+  .cursor, .cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+
+/* ============================================================
+   PAGE TRANSITION OVERLAY
+============================================================ */
+.page-transition {
+  position: fixed; inset: 0; z-index: 9997;
+  pointer-events: none;
+}
+.pt-panel {
+  position: absolute; left: 0; right: 0; height: 50%;
+  background: var(--orange);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.55s var(--ease);
+}
+.pt-panel:nth-child(2) {
+  top: 50%;
+  transform-origin: top;
+}
+.page-transition.entering .pt-panel { transform: scaleY(1); }
+.page-transition.leaving .pt-panel { transform: scaleY(0); }
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(1.25rem, 5%, 5rem);
+  height: 76px;
+  background: rgba(8,8,8,0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  transition: height 0.4s var(--ease), border-color 0.4s;
+}
+nav.scrolled {
+  height: 62px;
+  border-bottom-color: rgba(232,76,14,0.25);
+}
+
+/* Logo */
+.nav-logo {
+  display: flex; align-items: center; gap: 0.75rem;
+  flex-shrink: 0;
+  transition: opacity 0.3s;
+}
+.nav-logo:hover { opacity: 0.8; }
+.nav-logo-mark {
+  width: 38px; height: 38px;
+  background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  flex-shrink: 0;
+}
+.nav-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Desktop links */
+.nav-links {
+  display: flex; align-items: center; gap: 2rem;
+}
+.nav-links a {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600; font-size: 0.8rem;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--white-70);
+  position: relative;
+  transition: color 0.3s;
+  white-space: nowrap;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -5px; left: 0;
+  width: 0; height: 1.5px; background: var(--orange);
+  transition: width 0.35s var(--ease);
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+.nav-links a.active-link { color: var(--white); }
+.nav-links a.active-link::after { width: 100%; }
+
+.nav-cta {
+  background: var(--orange) !important;
+  color: var(--white) !important;
+  padding: 0.55rem 1.4rem;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: background 0.3s, transform 0.2s !important;
+}
+.nav-cta:hover { background: var(--orange-light) !important; transform: translateY(-1px) !important; }
+.nav-cta::after { display: none !important; }
+
+/* Hamburger */
+.hamburger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; width: 36px; height: 36px;
+  cursor: pointer; padding: 4px;
+  flex-shrink: 0;
+}
+.hamburger span {
+  width: 100%; height: 1.5px; background: var(--white);
+  transition: all 0.35s var(--ease);
+  transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* Mobile menu */
+.mobile-menu {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: var(--black);
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  padding: 5rem 2rem 3rem;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: clamp(2.2rem, 8vw, 3.5rem);
+  color: var(--white); text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: color 0.3s;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  width: 100%; text-align: center;
+}
+.mobile-menu a:last-child { border-bottom: none; }
+.mobile-menu a:hover { color: var(--orange); }
+.mobile-menu-contact {
+  margin-top: 2.5rem; text-align: center;
+  color: var(--white-40); font-size: 0.9rem;
+}
+.mobile-menu-contact a { font-size: 1.1rem; color: var(--orange); display: block; margin-top: 0.4rem; }
+
+/* ============================================================
+   PAGE SYSTEM
+============================================================ */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ============================================================
+   SHARED COMPONENTS
+============================================================ */
+
+/* Section wrapper */
+.section { padding: clamp(4rem, 8vw, 8rem) clamp(1.25rem, 5%, 5rem); }
+.section-sm { padding: clamp(3rem, 5vw, 5rem) clamp(1.25rem, 5%, 5rem); }
+
+.section-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 0.8rem;
+}
+.section-eyebrow::before {
+  content: ''; display: block; width: 24px; height: 1.5px; background: var(--orange);
+}
+
+.section-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.4rem, 3vw, 2.4rem);
+  line-height: 1.15; letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.section-title .outline {
+  -webkit-text-stroke: 1.5px var(--white); color: transparent;
+}
+.section-title .orange { color: var(--orange); }
+
+.section-lead {
+  font-size: clamp(0.85rem, 1vw, 0.95rem);
+  color: var(--white-70); line-height: 1.7;
+  max-width: 580px; margin-top: 0.8rem;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.65rem;
+  background: var(--orange); color: var(--white);
+  padding: 0.95rem 2.2rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 0.92rem; letter-spacing: 0.07em; text-transform: uppercase;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: background 0.3s var(--ease), transform 0.25s var(--ease), box-shadow 0.3s;
+}
+.btn-primary:hover {
+  background: var(--orange-light); transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(232,76,14,0.35);
+}
+.btn-primary svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 0.65rem;
+  background: transparent; color: var(--white);
+  padding: 0.95rem 2.2rem;
+  border: 1px solid rgba(255,255,255,0.18);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 0.92rem; letter-spacing: 0.07em; text-transform: uppercase;
+  transition: border-color 0.3s, color 0.3s, transform 0.25s var(--ease);
+}
+.btn-secondary:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-2px); }
+.btn-secondary svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+
+/* Divider line */
+.divider { width: 100%; height: 1px; background: var(--border); }
+
+/* Image placeholder */
+.img-placeholder {
+  background: var(--surface);
+  border: 1px dashed rgba(255,255,255,0.12);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.75rem; color: var(--white-40);
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.img-placeholder svg { width: 32px; height: 32px; opacity: 0.35; }
+
+/* Scroll animations */
+.fade-up { opacity: 0; transform: translateY(28px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.fade-left { opacity: 0; transform: translateX(-28px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+.fade-left.visible { opacity: 1; transform: translateX(0); }
+.fade-right { opacity: 0; transform: translateX(28px); transition: opacity 0.75s var(--ease), transform 0.75s var(--ease); }
+.fade-right.visible { opacity: 1; transform: translateX(0); }
+.fade-up:nth-child(2) { transition-delay: 0.1s; }
+.fade-up:nth-child(3) { transition-delay: 0.2s; }
+.fade-up:nth-child(4) { transition-delay: 0.3s; }
+.fade-up:nth-child(5) { transition-delay: 0.4s; }
+.fade-up:nth-child(6) { transition-delay: 0.5s; }
+
+/* Page hero */
+.page-hero {
+  min-height: 52vh;
+  display: flex; align-items: flex-end;
+  padding: clamp(6rem, 12vw, 10rem) clamp(1.25rem, 5%, 5rem) clamp(3rem, 5vw, 5rem);
+  position: relative; overflow: hidden;
+  background: var(--black-2);
+  border-bottom: 1px solid var(--border);
+}
+.page-hero-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(232,76,14,0.08) 0%, transparent 70%);
+}
+.page-hero-line {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+}
+.page-hero-content { position: relative; z-index: 1; max-width: 800px; }
+.page-hero h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.8rem, 4vw, 3.5rem);
+  line-height: 1.1; letter-spacing: -0.01em; text-transform: uppercase;
+}
+.page-hero p {
+  color: var(--white-70); font-size: 1.05rem; line-height: 1.7;
+  max-width: 500px; margin-top: 1.2rem;
+}
+
+/* ============================================================
+   MARQUEE
+============================================================ */
+.marquee-section {
+  background: var(--orange); padding: 0.9rem 0; overflow: hidden;
+}
+.marquee-track {
+  display: flex; gap: 2.5rem;
+  animation: marquee 25s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 0.82rem; letter-spacing: 0.18em; text-transform: uppercase;
+  white-space: nowrap; display: flex; align-items: center; gap: 1.2rem;
+  color: rgba(255,255,255,0.9);
+}
+.marquee-item::after {
+  content: ''; display: block; width: 4px; height: 4px;
+  background: rgba(255,255,255,0.5); border-radius: 50%;
+}
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ============================================================
+   FOOTER (shared)
+============================================================ */
+footer {
+  background: #050505;
+  padding: clamp(3.5rem, 6vw, 6rem) clamp(1.25rem, 5%, 5rem) clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--border);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: clamp(2rem, 4vw, 4rem);
+  margin-bottom: clamp(2.5rem, 4vw, 4rem);
+}
+.footer-brand-logo {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.2rem;
+}
+.footer-brand-mark {
+  width: 36px; height: 36px; background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  flex-shrink: 0;
+}
+.footer-logo-img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 0.8rem;
+}
+.footer-brand p {
+  color: var(--white-40); font-size: 0.88rem; line-height: 1.75;
+  max-width: 280px;
+}
+.footer-social { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.footer-social a {
+  width: 36px; height: 36px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white-40); transition: border-color 0.3s, color 0.3s;
+}
+.footer-social a:hover { border-color: var(--orange); color: var(--orange); }
+.footer-social svg { width: 16px; height: 16px; fill: currentColor; }
+
+.footer-col h5 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.18em; color: var(--white-40); margin-bottom: 1.2rem;
+}
+.footer-col li { margin-bottom: 0.6rem; }
+.footer-col a {
+  color: rgba(255,255,255,0.55); font-size: 0.88rem;
+  transition: color 0.3s;
+}
+.footer-col a:hover { color: var(--orange); }
+.footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-top: 1.8rem;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.75rem;
+  font-size: 0.78rem; color: var(--white-40);
+}
+
+/* ============================================================
+   HOME PAGE — HERO
+============================================================ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(6rem, 12vw, 10rem) clamp(1.25rem, 5%, 5rem) clamp(3rem, 5vw, 5rem);
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 75% 65% at 72% 50%, rgba(232,76,14,0.10) 0%, transparent 68%),
+    radial-gradient(ellipse 35% 35% at 15% 85%, rgba(232,76,14,0.05) 0%, transparent 55%);
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(232,76,14,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,76,14,0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: gridScroll 22s linear infinite;
+}
+@keyframes gridScroll {
+  0%   { transform: perspective(900px) rotateX(8deg) translateY(0); }
+  100% { transform: perspective(900px) rotateX(8deg) translateY(64px); }
+}
+
+/* Hero image placeholder */
+.hero-visual {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 45%;
+  overflow: hidden;
+}
+.hero-visual .img-placeholder {
+  width: 100%; height: 100%;
+  border: none; border-left: 1px dashed rgba(255,255,255,0.08);
+}
+.hero-visual-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, var(--black) 0%, transparent 40%);
+}
+
+.hero-content { position: relative; z-index: 2; max-width: 680px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.35);
+  padding: 0.4rem 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 1.8rem;
+  animation: fadeDown 0.9s var(--ease) both;
+}
+.hero-badge-dot {
+  width: 7px; height: 7px; background: var(--orange); border-radius: 50%;
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+.hero h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.05; letter-spacing: -0.01em; text-transform: uppercase;
+  animation: fadeUp 1s var(--ease) 0.15s both;
+}
+.hero h1 .orange { color: var(--orange); }
+.hero h1 .outline { -webkit-text-stroke: 1.5px var(--white); color: transparent; }
+
+.hero-sub {
+  font-size: clamp(0.85rem, 1vw, 0.92rem);
+  color: var(--white-70); max-width: 500px; line-height: 1.7;
+  margin-top: 1.2rem;
+  animation: fadeUp 1s var(--ease) 0.3s both;
+}
+
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2.5rem;
+  animation: fadeUp 1s var(--ease) 0.45s both;
+}
+
+.hero-stats {
+  display: flex; gap: clamp(2rem, 4vw, 4rem); margin-top: 4.5rem;
+  animation: fadeUp 1s var(--ease) 0.6s both;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+.stat-item {}
+.stat-number {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.4rem, 2.5vw, 2rem);
+  color: var(--orange); line-height: 1;
+}
+.stat-label {
+  font-size: 0.72rem; color: var(--white-40);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.3rem;
+}
+
+.scroll-indicator {
+  position: absolute; bottom: 2.5rem; left: clamp(1.25rem, 5%, 5rem);
+  display: flex; align-items: center; gap: 0.8rem;
+  color: var(--white-40); font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+  animation: fadeUp 1s var(--ease) 1s both;
+}
+.scroll-line {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+}
+
+/* ============================================================
+   HOME — FEATURES
+============================================================ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: clamp(3rem, 5vw, 5rem);
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.feature-card {
+  background: var(--black);
+  padding: clamp(2rem, 3.5vw, 3rem);
+  transition: background 0.4s;
+  position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--orange);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.feature-card:hover { background: var(--surface); }
+.feature-card:hover::before { transform: scaleX(1); }
+
+.feature-icon-wrap {
+  width: 52px; height: 52px;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.25);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.feature-icon-wrap svg { width: 24px; height: 24px; fill: var(--orange); }
+.feature-card h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.85rem; text-transform: uppercase;
+  letter-spacing: 0.02em; margin-bottom: 0.5rem;
+}
+.feature-card p { color: var(--white-70); font-size: 0.8rem; line-height: 1.65; }
+
+/* ============================================================
+   HOME — CATEGORIES OVERVIEW
+============================================================ */
+.categories-wrap {
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  border: 1px solid var(--border);
+}
+.category-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: clamp(1.2rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.35s;
+  cursor: pointer;
+}
+.category-row:last-child { border-bottom: none; }
+.category-row:hover { background: var(--surface); }
+.cat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 2rem;
+  color: var(--orange); line-height: 1;
+}
+.cat-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cat-desc { color: var(--white-40); font-size: 0.8rem; margin-top: 0.15rem; }
+.cat-tag {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--orange); background: var(--orange-dim);
+  border: 1px solid rgba(232,76,14,0.25);
+  padding: 0.3rem 0.75rem; white-space: nowrap;
+}
+.cat-arrow {
+  width: 36px; height: 36px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white-40); font-size: 1rem;
+  transition: border-color 0.3s, color 0.3s, transform 0.3s;
+}
+.category-row:hover .cat-arrow { border-color: var(--orange); color: var(--orange); transform: translateX(4px); }
+
+/* ============================================================
+   HOME — TESTIMONIALS
+============================================================ */
+.testimonials-section { background: var(--surface); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+}
+.testimonial-card {
+  background: var(--black);
+  border: 1px solid var(--border);
+  padding: clamp(1.8rem, 3vw, 2.5rem);
+  position: relative;
+  transition: border-color 0.35s, transform 0.35s var(--ease);
+}
+.testimonial-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+.testimonial-quote {
+  width: 36px; height: 36px; margin-bottom: 1.2rem;
+  fill: var(--orange); opacity: 0.6;
+}
+.testimonial-stars {
+  display: flex; gap: 3px; margin-bottom: 1rem;
+}
+.testimonial-stars svg { width: 14px; height: 14px; fill: var(--orange); }
+.testimonial-text {
+  color: var(--white-70); font-size: 0.8rem; line-height: 1.7;
+  font-style: italic; margin-bottom: 1rem;
+}
+.testimonial-author {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.8rem;
+}
+.testimonial-meta { font-size: 0.72rem; color: var(--white-40); margin-top: 0.15rem; }
+
+/* ============================================================
+   HOME — CTA SECTION
+============================================================ */
+.cta-section {
+  background: var(--orange);
+  padding: clamp(4rem, 7vw, 7rem) clamp(1.25rem, 5%, 5rem);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: center;
+}
+.cta-section h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.5rem, 3vw, 2.6rem);
+  line-height: 1.1; letter-spacing: -0.01em; text-transform: uppercase;
+}
+.cta-section p {
+  font-size: 1rem; line-height: 1.75;
+  opacity: 0.85; margin: 1.2rem 0 2rem;
+}
+.cta-section .btn-primary { background: var(--black); }
+.cta-section .btn-primary:hover { background: #1a1a1a; box-shadow: none; }
+.cta-section .btn-secondary { border-color: rgba(255,255,255,0.4); color: var(--white); }
+.cta-section .btn-secondary:hover { border-color: var(--white); color: var(--white); }
+.cta-phone-block { display: flex; flex-direction: column; gap: 0.3rem; }
+.cta-phone-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.65; }
+.cta-phone-number {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+  letter-spacing: -0.01em;
+}
+.cta-phone-number a { color: var(--white); transition: opacity 0.3s; }
+.cta-phone-number a:hover { opacity: 0.75; }
+.cta-hours { font-size: 0.85rem; opacity: 0.7; margin-top: 0.5rem; }
+
+/* ============================================================
+   HOME — INSTALLMENTS BANNER
+============================================================ */
+.installments-banner {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: clamp(2rem, 3.5vw, 3rem) clamp(1.25rem, 5%, 5rem);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 2rem; flex-wrap: wrap;
+}
+.installments-banner-left { display: flex; align-items: center; gap: 1.5rem; }
+.installments-icon {
+  width: 56px; height: 56px; flex-shrink: 0;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.25);
+  display: flex; align-items: center; justify-content: center;
+}
+.installments-icon svg { width: 26px; height: 26px; fill: var(--orange); }
+.installments-banner h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+  text-transform: uppercase; letter-spacing: -0.01em;
+}
+.installments-banner p { color: var(--white-70); font-size: 0.85rem; margin-top: 0.15rem; }
+
+/* ============================================================
+   ABOUT PAGE
+============================================================ */
+.about-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(3rem, 6vw, 7rem);
+  align-items: center;
+}
+.about-intro-visual { position: relative; }
+.about-intro-img {
+  width: 100%; aspect-ratio: 4/5;
+}
+.about-intro-badge {
+  position: absolute; bottom: -1.5rem; right: -1.5rem;
+  background: var(--orange);
+  padding: 1.5rem 2rem;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.about-intro-badge .big-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 2.5rem; line-height: 1;
+}
+.about-intro-badge .big-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; }
+
+.about-intro-text h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800; font-size: clamp(1.3rem, 2.8vw, 2.2rem);
+  line-height: 1.15; letter-spacing: -0.01em; text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
+.about-intro-text p {
+  color: var(--white-70); font-size: 0.95rem; line-height: 1.85;
+  margin-bottom: 1rem;
+}
+.about-intro-text p.highlight {
+  color: var(--white); font-size: 1.05rem; font-weight: 500;
+  border-left: 3px solid var(--orange); padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Stats bars */
+.stats-bars { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1.2rem; }
+.stat-bar-item {}
+.stat-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.stat-bar-label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white-70); }
+.stat-bar-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; color: var(--orange); }
+.stat-bar-track { height: 3px; background: var(--border); }
+.stat-bar-fill { height: 100%; background: var(--orange); transform-origin: left; transform: scaleX(0); transition: transform 1.2s var(--ease); }
+.stat-bar-fill.animated { transform: scaleX(1); }
+
+/* Values */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+}
+.value-card {
+  background: var(--black);
+  padding: clamp(2rem, 3vw, 2.8rem);
+  text-align: center;
+  transition: background 0.35s;
+}
+.value-card:hover { background: var(--surface); }
+.value-icon {
+  width: 56px; height: 56px; margin: 0 auto 1.2rem;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.value-icon svg { width: 26px; height: 26px; fill: var(--orange); }
+.value-card h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.78rem; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-bottom: 0.4rem;
+}
+.value-card p { color: var(--white-40); font-size: 0.78rem; line-height: 1.65; }
+
+/* Team */
+.team-section { background: var(--surface); }
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+}
+.team-card {
+  background: var(--black);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color 0.35s, transform 0.35s var(--ease);
+}
+.team-card:hover { border-color: var(--border-hover); transform: translateY(-4px); }
+.team-avatar-wrap {
+  width: 100%; aspect-ratio: 1;
+  position: relative;
+}
+.team-avatar-img { width: 100%; height: 100%; }
+.team-avatar-letter {
+  position: absolute; inset: 0;
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 3.5rem; color: var(--orange);
+}
+.team-card-body { padding: 1.4rem; }
+.team-card h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+}
+.team-card .role { font-size: 0.75rem; color: var(--orange); margin-top: 0.2rem; font-weight: 600; }
+.team-card .bio { font-size: 0.78rem; color: var(--white-40); line-height: 1.6; margin-top: 0.5rem; }
+
+/* ============================================================
+   COURSES PAGE
+============================================================ */
+.courses-list {
+  padding: 0 clamp(1.25rem, 5%, 5rem);
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 1px;
+}
+.course-card {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  align-items: center;
+  gap: 2rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  background: var(--black);
+  transition: background 0.35s;
+  cursor: pointer;
+}
+.course-card:hover { background: var(--surface); }
+.course-letter {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 3.5rem; line-height: 1;
+  color: var(--orange);
+  width: 100px; text-align: center;
+  flex-shrink: 0;
+}
+.course-info h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  text-transform: uppercase; letter-spacing: 0.02em;
+  margin-bottom: 0.35rem;
+}
+.course-info p { color: var(--white-70); font-size: 0.78rem; line-height: 1.6; }
+.course-tags {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem;
+}
+.tag {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--border); color: var(--white-40);
+}
+.tag.orange { border-color: rgba(232,76,14,0.35); color: var(--orange); background: var(--orange-dim); }
+.course-price { text-align: right; flex-shrink: 0; }
+.price-label { font-size: 0.7rem; color: var(--white-40); letter-spacing: 0.1em; text-transform: uppercase; }
+.price-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.3rem; color: var(--white);
+  margin-top: 0.2rem;
+}
+
+/* Process steps */
+.process-section { background: var(--surface); }
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+}
+.process-step {
+  background: var(--black);
+  padding: clamp(2rem, 3.5vw, 3rem);
+  position: relative;
+  transition: background 0.35s;
+}
+.process-step:hover { background: var(--surface); }
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 4rem; line-height: 1;
+  color: rgba(232,76,14,0.12); margin-bottom: 1rem;
+}
+.step-icon-wrap {
+  width: 48px; height: 48px;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.2rem;
+}
+.step-icon-wrap svg { width: 22px; height: 22px; fill: var(--orange); }
+.process-step h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-bottom: 0.4rem;
+}
+.process-step p { color: var(--white-40); font-size: 0.75rem; line-height: 1.6; }
+
+/* FAQ */
+.faq-list { margin-top: clamp(2.5rem, 4vw, 4rem); border: 1px solid var(--border); }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-item:last-child { border-bottom: none; }
+.faq-question {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.4rem clamp(1.2rem, 2.5vw, 2rem);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.faq-question:hover { background: var(--surface); }
+.faq-question h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 0.95rem;
+}
+.faq-icon {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.35s var(--ease), border-color 0.3s;
+}
+.faq-icon svg { width: 12px; height: 12px; fill: var(--white-70); }
+.faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--orange); }
+.faq-answer {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.45s var(--ease);
+}
+.faq-item.open .faq-answer { max-height: 300px; }
+.faq-answer p {
+  padding: 0 clamp(1.2rem, 2.5vw, 2rem) 1.4rem;
+  color: var(--white-70); font-size: 0.9rem; line-height: 1.8;
+}
+
+/* ============================================================
+   CONTACT PAGE
+============================================================ */
+.contact-section {
+  padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 5%, 5rem);
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(3rem, 6vw, 7rem);
+  align-items: start;
+}
+.contact-info-title {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: clamp(1rem, 2vw, 1.4rem);
+  text-transform: uppercase; margin-bottom: 1.2rem;
+}
+.contact-items { display: flex; flex-direction: column; gap: 1.5rem; }
+.contact-item {
+  display: flex; gap: 1.2rem; align-items: flex-start;
+}
+.contact-icon {
+  width: 50px; height: 50px; flex-shrink: 0;
+  background: var(--orange-dim); border: 1px solid rgba(232,76,14,0.25);
+  display: flex; align-items: center; justify-content: center;
+}
+.contact-icon svg { width: 22px; height: 22px; fill: var(--orange); }
+.contact-item-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--white-40); margin-bottom: 0.35rem;
+}
+.contact-item-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 1.05rem; line-height: 1.4;
+}
+.contact-item-val a { color: var(--white); transition: color 0.3s; }
+.contact-item-val a:hover { color: var(--orange); }
+
+.installment-box {
+  margin-top: 2.5rem;
+  padding: clamp(1.5rem, 2.5vw, 2rem);
+  background: var(--orange-dim);
+  border: 1px solid rgba(232,76,14,0.3);
+  border-left: 3px solid var(--orange);
+}
+.installment-box h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.1rem; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 0.6rem;
+}
+.installment-box p { color: var(--white-70); font-size: 0.88rem; line-height: 1.75; }
+
+/* Map */
+.map-section { padding: 0 clamp(1.25rem, 5%, 5rem) clamp(3rem, 6vw, 6rem); }
+.map-wrap {
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.map-embed {
+  width: 100%; height: 380px;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem;
+  color: var(--white-40); font-size: 0.85rem;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.map-embed svg { width: 36px; height: 36px; fill: var(--orange); opacity: 0.5; }
+.map-footer {
+  padding: 1.5rem 2rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 1rem;
+}
+.map-address-text { font-size: 0.88rem; color: var(--white-70); }
+.map-address-text strong { color: var(--white); font-weight: 600; display: block; margin-bottom: 0.2rem; }
+
+/* ============================================================
+   ANIMATIONS
+============================================================ */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(28px);} to{opacity:1;transform:translateY(0);} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 1100px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .values-grid   { grid-template-columns: repeat(2, 1fr); }
+  .team-grid     { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid   { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+}
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .hero-visual { display: none; }
+  .cta-section { grid-template-columns: 1fr; }
+  .about-intro { grid-template-columns: 1fr; }
+  .about-intro-badge { right: 1rem; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .process-steps { grid-template-columns: repeat(2, 1fr); }
+  .course-card { grid-template-columns: 80px 1fr; }
+  .course-price { display: none; }
+  .category-row { grid-template-columns: 60px 1fr auto; }
+  .cat-tag { display: none; }
+}
+
+@media (max-width: 640px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .values-grid   { grid-template-columns: 1fr; }
+  .team-grid     { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid   { grid-template-columns: 1fr; }
+  .hero-stats    { flex-wrap: wrap; gap: 1.5rem; }
+  .process-steps { grid-template-columns: 1fr; }
+  .hero-actions  { flex-direction: column; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary { width: 100%; justify-content: center; }
+  .installments-banner { flex-direction: column; align-items: flex-start; }
+  .category-row { grid-template-columns: 50px 1fr; }
+  .cat-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- PAGE TRANSITION -->
+<div class="page-transition" id="pageTransition">
+  <div class="pt-panel"></div>
+  <div class="pt-panel"></div>
+</div>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<nav id="mainNav">
+  <a class="nav-logo" href="#" onclick="showPage('home',event)">
+    <img src="logo.png" alt="Tempo Logo" class="nav-logo-img">
+  </a>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#" onclick="showPage('home',event)" data-page="home">Početna</a></li>
+    <li><a href="#" onclick="showPage('about',event)" data-page="about">O nama</a></li>
+    <li><a href="#" onclick="showPage('courses',event)" data-page="courses">Kategorije</a></li>
+    <li><a href="#" onclick="showPage('contact',event)" data-page="contact" class="nav-cta">Kontakt</a></li>
+  </ul>
+
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="showPage('home',event);toggleMenu()">Početna</a>
+  <a href="#" onclick="showPage('about',event);toggleMenu()">O nama</a>
+  <a href="#" onclick="showPage('courses',event);toggleMenu()">Kategorije</a>
+  <a href="#" onclick="showPage('contact',event);toggleMenu()">Kontakt</a>
+  <div class="mobile-menu-contact">
+    Pozovite nas odmah
+    <a href="tel:+38763444926">+387 63 444 926</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+============================================================ -->
+<div class="page active" id="home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <!-- Right visual placeholder -->
+    <div class="hero-visual">
+      <div class="img-placeholder">
+        <svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4H3a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7.5l-1-1zM12 17a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5-10H7V5h10v2z"/></svg>
+        <span>Fotografija vozila / škole</span>
+      </div>
+      <div class="hero-visual-overlay"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Mostar – Kneza Višeslava 14c
+      </div>
+      <h1>
+        Nauči<br>
+        <span class="orange">voziti</span><br>
+        <span class="outline">pouzdano</span>
+      </h1>
+      <p class="hero-sub">Autoškola Tempo – vaš partner na putu do vozačke dozvole u Mostaru. Iskusni instruktori, moderna vozila i fleksibilni termini prilagođeni vama.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="showPage('contact',event)">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Upiši se odmah
+        </a>
+        <a href="#" class="btn-secondary" onclick="showPage('courses',event)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Naše kategorije
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number" data-count="500">0</div>
+          <div class="stat-label">Polaznika</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="98">0</div>
+          <div class="stat-label">% Uspješnosti</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="10">0</div>
+          <div class="stat-label">Godina iskustva</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" data-count="24">0</div>
+          <div class="stat-label">Rate plaćanja</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Skrolaj dolje</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <div class="marquee-item">Kategorija B – Osobni automobil</div>
+      <div class="marquee-item">Kategorija A – Motocikl</div>
+      <div class="marquee-item">Kategorija C – Kamion</div>
+      <div class="marquee-item">Kategorija AM – Moped</div>
+      <div class="marquee-item">Kategorija B+E – Prikolica</div>
+      <div class="marquee-item">Mostar · Kneza Višeslava 14c</div>
+      <div class="marquee-item">Do 24 rate bez kamate</div>
+      <div class="marquee-item">+387 63 444 926</div>
+      <div class="marquee-item">98% prolaznost na ispitu</div>
+      <div class="marquee-item">Fleksibilni termini</div>
+    </div>
+  </div>
+
+  <!-- WHY US -->
+  <section class="section">
+    <div class="section-eyebrow">Zašto Tempo?</div>
+    <h2 class="section-title">Vaša sigurnost<br><span class="outline">naša misija</span></h2>
+    <p class="section-lead">Svaki polaznik zaslužuje individualnu pažnju, moderna vozila i instruktora koji razumije vaš tempo učenja.</p>
+
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <h3>Iskusni instruktori</h3>
+        <p>Naš tim čine certificirani instruktori sa višegodišnjim iskustvom koji nastavu prilagođavaju svakom polazniku individualno i strpljivo.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+        </div>
+        <h3>Moderna vozila</h3>
+        <p>Vozimo najnovijim modelima opremljenim duplim komandama za maksimalnu sigurnost. Redovno servisirana i tehnički besprijekorna vozila.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+        </div>
+        <h3>Fleksibilni termini</h3>
+        <p>Biramo termine koji odgovaraju vama – jutarnji, popodnevni i večernji, svakog radnog dana i subotom. Prilagodimo se vašem rasporedu.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+        </div>
+        <h3>Do 24 rate</h3>
+        <p>Plaćanje na rate bez skrivenih troškova. Vozačka dozvola dostupna svima – prilagodimo plan plaćanja vašim finansijskim mogućnostima.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        </div>
+        <h3>Online testovi</h3>
+        <p>Pristup testu za teorijski ispit online – vježbajte gdje god se nalazite i kada god hoćete. Moderna platforma sa aktuelnim pitanjima.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <h3>Visoka prolaznost</h3>
+        <p>98% naših polaznika prolazi ispit na prvom pokušaju. Taj rezultat je naš standard, naš ponos i naša obaveza prema svakom kandidatu.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES OVERVIEW -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-eyebrow">Šta nudimo</div>
+    <h2 class="section-title">Kategorije<br><span class="outline">vozačkih dozvola</span></h2>
+    <p class="section-lead">Od osobnog automobila do teretnog vozila – nudimo sve kategorije vozačkih dozvola uz stručnu i profesionalnu obuku.</p>
+
+    <div class="categories-wrap">
+      <div class="category-row fade-up" onclick="showPage('courses',event)">
+        <div class="cat-num">B</div>
+        <div class="cat-body">
+          <div class="cat-name">Osobni automobil</div>
+          <div class="cat-desc">Putničko vozilo do 3.500 kg – osnovna i najpopularnija kategorija</div>
+        </div>
+        <div class="cat-tag">Najpopularnija</div>
+        <div class="cat-arrow">→</div>
+      </div>
+      <div class="category-row fade-up" onclick="showPage('courses',event)">
+        <div class="cat-num">A</div>
+        <div class="cat-body">
+          <div class="cat-name">Motocikl</div>
+          <div class="cat-desc">A1, A2 i puna A kategorija – za sve ljubitelje dvotočkaša</div>
+        </div>
+        <div class="cat-tag">Dostupno</div>
+        <div class="cat-arrow">→</div>
+      </div>
+      <div class="category-row fade-up" onclick="showPage('courses',event)">
+        <div class="cat-num">C</div>
+        <div class="cat-body">
+          <div class="cat-name">Teretno vozilo</div>
+          <div class="cat-desc">Kamioni i vozila teža od 3.500 kg – za profesionalne vozače</div>
+        </div>
+        <div class="cat-tag">Profesionalni</div>
+        <div class="cat-arrow">→</div>
+      </div>
+      <div class="category-row fade-up" onclick="showPage('courses',event)">
+        <div class="cat-num">AM</div>
+        <div class="cat-body">
+          <div class="cat-name">Moped / Laki motor</div>
+          <div class="cat-desc">Za mlade vozače od 14+ godina – brza i dostupna obuka</div>
+        </div>
+        <div class="cat-tag">Za mlade</div>
+        <div class="cat-arrow">→</div>
+      </div>
+      <div class="category-row fade-up" onclick="showPage('courses',event)">
+        <div class="cat-num">B+E</div>
+        <div class="cat-body">
+          <div class="cat-name">Prikolica</div>
+          <div class="cat-desc">Vučenje prikolice uz osobni automobil – kamperi i entuzijasti</div>
+        </div>
+        <div class="cat-tag">Proširenje</div>
+        <div class="cat-arrow">→</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section testimonials-section">
+    <div class="section-eyebrow">Iskustva polaznika</div>
+    <h2 class="section-title">Šta kažu<br><span class="outline">naši vozači</span></h2>
+    <p class="section-lead">Više od 500 zadovoljnih polaznika – njihova iskustva govore više od bilo koje reklame.</p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <svg class="testimonial-quote" viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testimonial-text">"Prošla sam ispit u prvom pokušaju! Instruktor je bio izuzetno strpljiv i profesionalan. Svima u Mostaru toplo preporučujem Autoškolu Tempo!"</p>
+        <div class="testimonial-author">Amina K.</div>
+        <div class="testimonial-meta">Kategorija B · Mostar · 2024</div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <svg class="testimonial-quote" viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testimonial-text">"Odličan odnos prema polaznicima i mogućnost plaćanja na rate mi je jako pomogla. Sada vozim slobodno i samopouzdano. Hvala Tempu!"</p>
+        <div class="testimonial-author">Marko T.</div>
+        <div class="testimonial-meta">Kategorija B · Mostar · 2024</div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <svg class="testimonial-quote" viewBox="0 0 24 24"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+        <div class="testimonial-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testimonial-text">"Uzeo sam i B i A kategoriju u Tempu. Sve pohvale – moderna vozila, top instruktori i odlična organizacija. Jedina prava autoškola u Mostaru!"</p>
+        <div class="testimonial-author">Davor M.</div>
+        <div class="testimonial-meta">Kategorija A+B · Mostar · 2023</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  <div class="cta-section fade-up">
+    <div>
+      <h2>Spreman za<br><span style="color:rgba(0,0,0,0.25)">volant?</span></h2>
+    </div>
+    <div>
+      <p>Pozovite nas danas ili pošaljite upit – javimo se odmah i dogovorimo termin koji vama odgovara. Vozačka dozvola je na dohvat ruke.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;">
+        <a href="tel:+38763444926" class="btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          063 444 926
+        </a>
+        <a href="#" class="btn-secondary" onclick="showPage('courses',event)">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Pogledaj kategorije
+        </a>
+      </div>
+      <div class="cta-phone-block">
+        <div class="cta-phone-label">Radno vrijeme</div>
+        <div class="cta-hours">Pon – Pet: 08:00 – 20:00 &nbsp;|&nbsp; Sub: 09:00 – 15:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTALLMENTS BANNER -->
+  <div class="installments-banner">
+    <div class="installments-banner-left">
+      <div class="installments-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+      </div>
+      <div>
+        <h3>Plaćanje do 24 rate!</h3>
+        <p>Bez skrivenih troškova – vozačka dozvola dostupna svima</p>
+      </div>
+    </div>
+    <a href="#" class="btn-primary" onclick="showPage('contact',event)">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Saznaj više
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">
+          <img src="logo.png" alt="Tempo Logo" class="footer-logo-img">
+        </div>
+        <p>Vaša pouzdana autoškola u Mostaru. Profesionalni instruktori, moderna vozila i fleksibilni uslovi plaćanja od 2014. godine.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/autoskolatempo/" target="_blank" title="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/autoskolatempo/" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navigacija</h5>
+        <ul>
+          <li><a href="#" onclick="showPage('home',event)">Početna</a></li>
+          <li><a href="#" onclick="showPage('about',event)">O nama</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorije</a></li>
+          <li><a href="#" onclick="showPage('contact',event)">Kontakt</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kategorije</h5>
+        <ul>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorija B</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorija A</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorija C</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorija AM</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorija B+E</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kontakt</h5>
+        <ul>
+          <li><a href="tel:+38763444926">+387 63 444 926</a></li>
+          <li><a href="mailto:miletic.mario86@gmail.com">miletic.mario86@gmail.com</a></li>
+          <li><a href="#">K. Višeslava 14c, Mostar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Autoškola Tempo. Sva prava zadržana.</span>
+      <div style="display:flex; gap:1.5rem; align-items:center;">
+        <span>Mostar, Bosna i Hercegovina</span>
+        <a href="https://www.instagram.com/napa_development/" target="_blank" style="color:var(--white-40); transition:color 0.3s; font-weight:600; letter-spacing:0.05em;">Powered by <span style="color:var(--orange);">NAPA DEVELOPMENT</span></a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     ABOUT PAGE
+============================================================ -->
+<div class="page" id="about">
+
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-line"></div>
+    <div class="page-hero-content">
+      <div class="section-eyebrow">Ko smo mi</div>
+      <h1>O nama –<br><span style="color:var(--orange)">Autoškola</span><br>Tempo</h1>
+      <p>Više od obučavanja vozača – gradimo samopouzdane, sigurne i odgovorne učesnike u saobraćaju od 2014. godine.</p>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <section class="section">
+    <div class="about-intro">
+      <div class="about-intro-visual fade-left">
+        <div class="about-intro-img img-placeholder">
+          <svg viewBox="0 0 24 24"><path d="M21 6.5l-4-4H3a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7.5l-1-1zM12 17a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm5-10H7V5h10v2z"/></svg>
+          <span>Fotografija autoškole / vozila</span>
+        </div>
+        <div class="about-intro-badge">
+          <div class="big-num">10+</div>
+          <div class="big-label">Godina iskustva</div>
+        </div>
+      </div>
+      <div class="about-intro-text fade-right">
+        <div class="section-eyebrow">Naša priča</div>
+        <h2>Tradicija i<br>moderna obuka</h2>
+        <p class="highlight">Autoškola Tempo smještena je u srcu Mostara, na Knezu Višeslava 14c – na samom vrhu avenije prema novom mostu.</p>
+        <p>Osnivači autoškole vjeruju da dobra obuka vozača nije samo tehničko umijeće – to je odgovornost prema sebi i prema drugima na cesti. Svaki polaznik dobija individualni pristup, pažnju iskusnog instruktora i svu podršku tokom teorijskog i praktičnog dijela obuke.</p>
+        <p>Koristimo savremena vozila opremljena duplim komandama, a naši teorijski časovi kombinirani su sa digitalnim materijalima i online testovima za lakše i efikasnije učenje.</p>
+        <p>Naš cilj nije samo da vas naučimo voziti – naš cilj je da postanete siguran, odgovoran i samopouzdan vozač koji razumije saobraćaj.</p>
+
+        <div class="stats-bars">
+          <div class="stat-bar-item">
+            <div class="stat-bar-header">
+              <span class="stat-bar-label">Prolaznost na ispitu</span>
+              <span class="stat-bar-val">98%</span>
+            </div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:98%"></div></div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-header">
+              <span class="stat-bar-label">Zadovoljstvo polaznika</span>
+              <span class="stat-bar-val">96%</span>
+            </div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:96%"></div></div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-header">
+              <span class="stat-bar-label">Sigurnost vožnje</span>
+              <span class="stat-bar-val">100%</span>
+            </div>
+            <div class="stat-bar-track"><div class="stat-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+
+        <a href="#" class="btn-primary" onclick="showPage('contact',event)" style="margin-top:2rem;display:inline-flex;">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          Kontaktirajte nas
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-eyebrow">Naše vrijednosti</div>
+    <h2 class="section-title">Šta nas<br><span class="outline">čini posebnim</span></h2>
+    <div class="values-grid">
+      <div class="value-card fade-up">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l6 2.67V11c0 3.88-2.67 7.52-6 8.93-3.33-1.41-6-5.05-6-8.93V7.67L12 5z"/></svg>
+        </div>
+        <h4>Sigurnost</h4>
+        <p>Sigurnost polaznika i ostalih učesnika u saobraćaju je naš prioritet broj jedan.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        </div>
+        <h4>Izvrsnost</h4>
+        <p>Konstantno unapređujemo metode obuke i pratimo najnovije standarde u industriji.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <h4>Individualni pristup</h4>
+        <p>Svaki polaznik je jedinstven – prilagođavamo tempo i metode svakom kandidatu.</p>
+      </div>
+      <div class="value-card fade-up">
+        <div class="value-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <h4>Pouzdanost</h4>
+        <p>Poštujemo dogovorene termine i obaveze prema polaznicima bez izuzetka.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="section team-section">
+    <div class="section-eyebrow">Naš tim</div>
+    <h2 class="section-title">Instruktori<br><span class="outline">koji brinu o vama</span></h2>
+    <p class="section-lead">Iskusni, strpljivi i posvećeni – naš tim je tu da vas provede kroz svaki korak obuke.</p>
+
+    <div class="team-grid">
+      <div class="team-card fade-up">
+        <div class="team-avatar-wrap">
+          <div class="img-placeholder team-avatar-img">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <div class="team-avatar-letter">M</div>
+        </div>
+        <div class="team-card-body">
+          <h4>Mario Miletić</h4>
+          <div class="role">Osnivač &amp; Glavni instruktor</div>
+          <p class="bio">Osnivač autoškole sa višegodišnjim iskustvom u obuci vozača. Specijalizovan za B i C kategoriju.</p>
+        </div>
+      </div>
+      <div class="team-card fade-up">
+        <div class="team-avatar-wrap">
+          <div class="img-placeholder team-avatar-img">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <div class="team-avatar-letter">A</div>
+        </div>
+        <div class="team-card-body">
+          <h4>Instruktor A</h4>
+          <div class="role">B &amp; C Kategorija</div>
+          <p class="bio">Iskusni instruktor sa fokusom na sigurnu vožnju i pravilne navike u saobraćaju.</p>
+        </div>
+      </div>
+      <div class="team-card fade-up">
+        <div class="team-avatar-wrap">
+          <div class="img-placeholder team-avatar-img">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <div class="team-avatar-letter">T</div>
+        </div>
+        <div class="team-card-body">
+          <h4>Instruktor B</h4>
+          <div class="role">A &amp; AM Kategorija</div>
+          <p class="bio">Stručnjak za motocikliste – od početnika do naprednih vozača svih A kategorija.</p>
+        </div>
+      </div>
+      <div class="team-card fade-up">
+        <div class="team-avatar-wrap">
+          <div class="img-placeholder team-avatar-img">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <div class="team-avatar-letter">R</div>
+        </div>
+        <div class="team-card-body">
+          <h4>Teorijski predavač</h4>
+          <div class="role">Teorija saobraćaja</div>
+          <p class="bio">Predavač teorijskog dijela obuke sa modernim pristupom i digitalnim materijalima.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">
+          <img src="logo.png" alt="Tempo Logo" class="footer-logo-img">
+        </div>
+        <p>Vaša pouzdana autoškola u Mostaru od 2014. godine.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/autoskolatempo/" target="_blank" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://www.instagram.com/autoskolatempo/" target="_blank" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navigacija</h5>
+        <ul>
+          <li><a href="#" onclick="showPage('home',event)">Početna</a></li>
+          <li><a href="#" onclick="showPage('about',event)">O nama</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorije</a></li>
+          <li><a href="#" onclick="showPage('contact',event)">Kontakt</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kontakt</h5>
+        <ul>
+          <li><a href="tel:+38763444926">+387 63 444 926</a></li>
+          <li><a href="mailto:miletic.mario86@gmail.com">miletic.mario86@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Adresa</h5>
+        <ul>
+          <li><a href="#">Kneza Višeslava 14c</a></li>
+          <li><a href="#">88000 Mostar, BiH</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Autoškola Tempo. Sva prava zadržana.</span>
+      <div style="display:flex; gap:1.5rem; align-items:center;">
+        <span>Mostar, Bosna i Hercegovina</span>
+        <a href="https://www.instagram.com/napa_development/" target="_blank" style="color:var(--white-40); transition:color 0.3s; font-weight:600; letter-spacing:0.05em;">Powered by <span style="color:var(--orange);">NAPA DEVELOPMENT</span></a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     COURSES PAGE
+============================================================ -->
+<div class="page" id="courses">
+
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-line"></div>
+    <div class="page-hero-content">
+      <div class="section-eyebrow">Šta nudimo</div>
+      <h1>Kategorije<br><span style="color:var(--orange)">vozačkih</span><br>dozvola</h1>
+      <p>Izaberite kategoriju koja odgovara vašim potrebama i krenite na put ka slobodi vožnje uz naše iskusne instruktore.</p>
+    </div>
+  </div>
+
+  <!-- COURSES LIST -->
+  <div class="courses-list">
+    <div class="course-card fade-up">
+      <div class="course-letter">B</div>
+      <div class="course-info">
+        <h3>Kategorija B – Osobni automobil</h3>
+        <p>Putničko vozilo i laka dostavna vozila do 3.500 kg, do 8+1 mjesta. Osnovna i najpopularnija kategorija vozačke dozvole.</p>
+        <div class="course-tags">
+          <span class="tag orange">Najpopularnija</span>
+          <span class="tag">40 sati vožnje</span>
+          <span class="tag">30 sati teorije</span>
+          <span class="tag">Od 17 godina</span>
+          <span class="tag">Duplo komande</span>
+        </div>
+      </div>
+      <div class="course-price">
+        <div class="price-label">Cijena</div>
+        <div class="price-value">Na upit</div>
+      </div>
+    </div>
+
+    <div class="course-card fade-up">
+      <div class="course-letter">A</div>
+      <div class="course-info">
+        <h3>Kategorija A – Motocikl</h3>
+        <p>Svi tipovi motocikala – A1 (laki motocikl do 125cc), A2 (ograničena snaga) i puna A kategorija za sve motocikle.</p>
+        <div class="course-tags">
+          <span class="tag">A1 od 16g</span>
+          <span class="tag">A2 od 18g</span>
+          <span class="tag orange">A od 24g</span>
+          <span class="tag">Dvoetapni pristup</span>
+          <span class="tag">Poligon obuka</span>
+        </div>
+      </div>
+      <div class="course-price">
+        <div class="price-label">Cijena</div>
+        <div class="price-value">Na upit</div>
+      </div>
+    </div>
+
+    <div class="course-card fade-up">
+      <div class="course-letter">AM</div>
+      <div class="course-info">
+        <h3>Kategorija AM – Moped</h3>
+        <p>Laki motocikli i mopedi do 45 km/h i 50cc – idealno za mlade vozače koji žele mobilnost u gradu.</p>
+        <div class="course-tags">
+          <span class="tag orange">Od 14 godina</span>
+          <span class="tag">Brza obuka</span>
+          <span class="tag">Gradska vožnja</span>
+          <span class="tag">Kratki kurs</span>
+        </div>
+      </div>
+      <div class="course-price">
+        <div class="price-label">Cijena</div>
+        <div class="price-value">Na upit</div>
+      </div>
+    </div>
+
+    <div class="course-card fade-up">
+      <div class="course-letter">C</div>
+      <div class="course-info">
+        <h3>Kategorija C – Teretno vozilo</h3>
+        <p>Kamioni i teška vozila iznad 3.500 kg – za profesionalne vozače koji žele karijeru u transportu i logistici.</p>
+        <div class="course-tags">
+          <span class="tag">Od 21 godine</span>
+          <span class="tag orange">Profesionalno</span>
+          <span class="tag">CPC modul</span>
+          <span class="tag">Karijera u transportu</span>
+        </div>
+      </div>
+      <div class="course-price">
+        <div class="price-label">Cijena</div>
+        <div class="price-value">Na upit</div>
+      </div>
+    </div>
+
+    <div class="course-card fade-up">
+      <div class="course-letter">B+E</div>
+      <div class="course-info">
+        <h3>Kategorija B+E – Prikolica</h3>
+        <p>Vučenje prikolice uz osobni automobil – za kampere, entuzijaste i sve kojima je potreban transport tereta.</p>
+        <div class="course-tags">
+          <span class="tag">Potrebna B kat.</span>
+          <span class="tag">Brza obuka</span>
+          <span class="tag">Kamperi</span>
+          <span class="tag">Proširenje dozvole</span>
+        </div>
+      </div>
+      <div class="course-price">
+        <div class="price-label">Cijena</div>
+        <div class="price-value">Na upit</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESS -->
+  <section class="section process-section">
+    <div class="section-eyebrow">Kako funkcioniše</div>
+    <h2 class="section-title">Proces u<br><span class="outline">4 koraka</span></h2>
+    <p class="section-lead">Od prvog poziva do vozačke dozvole – jednostavan i transparentan proces koji vas vodi korak po korak.</p>
+
+    <div class="process-steps">
+      <div class="process-step fade-up">
+        <div class="step-num">01</div>
+        <div class="step-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+        </div>
+        <h4>Javi se</h4>
+        <p>Pozovi nas ili pošalji upit – odmah ti odgovaramo i dogovaramo termin upisa koji ti odgovara.</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">02</div>
+        <div class="step-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>
+        </div>
+        <h4>Teorija</h4>
+        <p>Pohađaš teorijsku nastavu uz moderne materijale, online testove i interaktivna predavanja.</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">03</div>
+        <div class="step-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/></svg>
+        </div>
+        <h4>Praktična vožnja</h4>
+        <p>Voziš sa iskusnim instruktorom u modernom vozilu sa duplim komandama – sigurno i efikasno.</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">04</div>
+        <div class="step-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        </div>
+        <h4>Ispit &amp; Dozvola</h4>
+        <p>Polažeš ispit i dobijate vozačku dozvolu. Slobodni ste na cesti – čestitamo!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-eyebrow">Česta pitanja</div>
+    <h2 class="section-title">Imate<br><span class="outline">pitanja?</span></h2>
+    <p class="section-lead">Odgovaramo na najčešća pitanja naših polaznika – transparentno i jasno.</p>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Koliko traje obuka za kategoriju B?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Obuka za kategoriju B traje minimalno 40 sati praktične vožnje i 30 sati teorije. Trajanje ovisi o individualnom napretku polaznika – neki završe brže, nekima treba više vremena, i to je potpuno normalno.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Kako funkcioniše plaćanje na rate?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Nudimo mogućnost plaćanja do 24 rate bez skrivenih troškova. Kontaktirajte nas direktno kako bismo prilagodili plan plaćanja vašim mogućnostima. Nema kamate ni dodatnih naknada.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Od koje dobi mogu pohađati obuku?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Minimalna dob ovisi o kategoriji: AM kategorija od 14 godina, A1 od 16 godina, B kategorija od 17 godina (uz pratnju), A2 od 18 godina, B od 18 godina (samostalno), C od 21 godine, A od 24 godine.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Koje dokumente trebam za upis?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Za upis su potrebni: važeća lična karta ili pasoš, fotografija (biometrijska), ljekarsko uvjerenje o zdravstvenoj sposobnosti za upravljanje motornim vozilom i dokaz o uplati prve rate ili pune cijene.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Mogu li birati svog instruktora?</h4>
+          <div class
+="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Da, nastojimo uvažiti preferencije polaznika u pogledu instruktora. Kontaktirajte nas i dogovorimo raspored koji vama odgovara. Naš tim je mali i posvećen, pa je komunikacija direktna i brza.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h4>Šta ako ne položim ispit na prvom pokušaju?</h4>
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+        </div>
+        <div class="faq-answer"><p>Naša prolaznost je 98%, ali u slučaju neuspjeha na ispitu, pružamo dodatnu podršku i vježbu bez dodatnih troškova. Stojimo uz vas dok ne položite – to je naše obećanje.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALLMENTS BANNER -->
+  <div class="installments-banner">
+    <div class="installments-banner-left">
+      <div class="installments-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+      </div>
+      <div>
+        <h3>Plaćanje do 24 rate!</h3>
+        <p>Kontaktirajte nas za detalje o cijenama i uslovima plaćanja</p>
+      </div>
+    </div>
+    <a href="#" class="btn-primary" onclick="showPage('contact',event)">
+      <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+      Kontaktirajte nas
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">
+          <img src="logo.png" alt="Tempo Logo" class="footer-logo-img">
+        </div>
+        <p>Vaša pouzdana autoškola u Mostaru od 2014. godine.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/autoskolatempo/" target="_blank" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://www.instagram.com/autoskolatempo/" target="_blank" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navigacija</h5>
+        <ul>
+          <li><a href="#" onclick="showPage('home',event)">Početna</a></li>
+          <li><a href="#" onclick="showPage('about',event)">O nama</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorije</a></li>
+          <li><a href="#" onclick="showPage('contact',event)">Kontakt</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kategorije</h5>
+        <ul>
+          <li><a href="#">Kategorija B</a></li>
+          <li><a href="#">Kategorija A</a></li>
+          <li><a href="#">Kategorija C</a></li>
+          <li><a href="#">Kategorija AM</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kontakt</h5>
+        <ul>
+          <li><a href="tel:+38763444926">+387 63 444 926</a></li>
+          <li><a href="mailto:miletic.mario86@gmail.com">miletic.mario86@gmail.com</a></li>
+          <li><a href="#">K. Višeslava 14c, Mostar</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Autoškola Tempo. Sva prava zadržana.</span>
+      <div style="display:flex; gap:1.5rem; align-items:center;">
+        <span>Mostar, Bosna i Hercegovina</span>
+        <a href="https://www.instagram.com/napa_development/" target="_blank" style="color:var(--white-40); transition:color 0.3s; font-weight:600; letter-spacing:0.05em;">Powered by <span style="color:var(--orange);">NAPA DEVELOPMENT</span></a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     CONTACT PAGE
+============================================================ -->
+<div class="page" id="contact">
+
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-line"></div>
+    <div class="page-hero-content">
+      <div class="section-eyebrow">Stupite u kontakt</div>
+      <h1>Kontaktirajte<br><span style="color:var(--orange)">nas</span></h1>
+      <p>Pozovite nas, pošaljite email ili nas posjetite lično – tu smo za vas svakog radnog dana.</p>
+    </div>
+  </div>
+
+  <!-- CONTACT INFO -->
+  <section class="contact-section">
+    <div class="contact-grid">
+      <div class="fade-left">
+        <p class="contact-info-title">Informacije</p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Telefon</div>
+              <div class="contact-item-val"><a href="tel:+38763444926">+387 63 444 926</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Email</div>
+              <div class="contact-item-val"><a href="mailto:miletic.mario86@gmail.com">miletic.mario86@gmail.com</a></div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Adresa</div>
+              <div class="contact-item-val">Kneza Višeslava 14c<br>88000 Mostar, BiH</div>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+            </div>
+            <div>
+              <div class="contact-item-label">Radno vrijeme</div>
+              <div class="contact-item-val">Pon – Pet: 08:00 – 20:00<br>Sub: 09:00 – 15:00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="installment-box">
+          <h4>Plaćanje na rate</h4>
+          <p>Nudimo mogućnost plaćanja do 24 rate bez skrivenih troškova. Upitajte nas za detalje i prilagodimo plan vašim mogućnostima – bez kamate i bez stresa.</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Direct call to action instead of form -->
+      <div class="fade-right">
+        <p class="contact-info-title">Kako nas kontaktirati</p>
+
+        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+          <!-- Call card -->
+          <div style="border:1px solid var(--border);padding:2rem;background:var(--surface);transition:border-color 0.3s;" onmouseenter="this.style.borderColor='rgba(232,76,14,0.35)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+              <div style="width:48px;height:48px;background:var(--orange-dim);border:1px solid rgba(232,76,14,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--orange)"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--white-40);margin-bottom:0.2rem;">Nazovite nas direktno</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;">+387 63 444 926</div>
+              </div>
+            </div>
+            <p style="color:var(--white-70);font-size:0.88rem;line-height:1.75;margin-bottom:1.2rem;">Najbrži način da se dogovorite – javimo se odmah i odgovorimo na sva vaša pitanja.</p>
+            <a href="tel:+38763444926" class="btn-primary" style="width:100%;justify-content:center;">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              Pozovite odmah
+            </a>
+          </div>
+
+          <!-- Email card -->
+          <div style="border:1px solid var(--border);padding:2rem;background:var(--surface);transition:border-color 0.3s;" onmouseenter="this.style.borderColor='rgba(232,76,14,0.35)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+              <div style="width:48px;height:48px;background:var(--orange-dim);border:1px solid rgba(232,76,14,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--orange)"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--white-40);margin-bottom:0.2rem;">Pošaljite email</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">miletic.mario86@gmail.com</div>
+              </div>
+            </div>
+            <p style="color:var(--white-70);font-size:0.88rem;line-height:1.75;margin-bottom:1.2rem;">Pošaljite nam email sa vašim pitanjima – odgovaramo u roku od 24 sata.</p>
+            <a href="mailto:miletic.mario86@gmail.com" class="btn-secondary" style="width:100%;justify-content:center;">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              Pošalji email
+            </a>
+          </div>
+
+          <!-- Visit card -->
+          <div style="border:1px solid var(--border);padding:2rem;background:var(--surface);transition:border-color 0.3s;" onmouseenter="this.style.borderColor='rgba(232,76,14,0.35)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+              <div style="width:48px;height:48px;background:var(--orange-dim);border:1px solid rgba(232,76,14,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:var(--orange)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--white-40);margin-bottom:0.2rem;">Posjetite nas</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">Kneza Višeslava 14c, Mostar</div>
+              </div>
+            </div>
+            <p style="color:var(--white-70);font-size:0.88rem;line-height:1.75;">Dođite lično – rado ćemo vas primiti i odgovoriti na sva pitanja u opuštenoj atmosferi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <div class="map-section">
+    <div class="section-eyebrow">Kako nas naći</div>
+    <div class="map-wrap fade-up">
+      <div class="map-embed">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span>Kneza Višeslava 14c, 88000 Mostar</span>
+        <span style="font-size:0.72rem;opacity:0.5;">Ovdje možete ugraditi Google Maps iframe</span>
+      </div>
+      <div class="map-footer">
+        <div class="map-address-text">
+          <strong>Autoškola Tempo – Mostar</strong>
+          Kneza Višeslava 14c (Vrh avenije prema novom mostu), 88000 Mostar, Bosna i Hercegovina
+        </div>
+        <a href="https://maps.google.com/?q=Kneza+Višeslava+14c,+Mostar" target="_blank" class="btn-secondary" style="flex-shrink:0;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Otvori u Google Maps
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-logo">
+          <img src="logo.png" alt="Tempo Logo" class="footer-logo-img">
+        </div>
+        <p>Vaša pouzdana autoškola u Mostaru od 2014. godine.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/autoskolatempo/" target="_blank" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          <a href="https://www.instagram.com/autoskolatempo/" target="_blank" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navigacija</h5>
+        <ul>
+          <li><a href="#" onclick="showPage('home',event)">Početna</a></li>
+          <li><a href="#" onclick="showPage('about',event)">O nama</a></li>
+          <li><a href="#" onclick="showPage('courses',event)">Kategorije</a></li>
+          <li><a href="#" onclick="showPage('contact',event)">Kontakt</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Kontakt</h5>
+        <ul>
+          <li><a href="tel:+38763444926">+387 63 444 926</a></li>
+          <li><a href="mailto:miletic.mario86@gmail.com">miletic.mario86@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Adresa</h5>
+        <ul>
+          <li><a href="#">Kneza Višeslava 14c</a></li>
+          <li><a href="#">88000 Mostar, BiH</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Autoškola Tempo. Sva prava zadržana.</span>
+      <div style="display:flex; gap:1.5rem; align-items:center;">
+        <span>Mostar, Bosna i Hercegovina</span>
+        <a href="https://www.instagram.com/napa_development/" target="_blank" style="color:var(--white-40); transition:color 0.3s; font-weight:600; letter-spacing:0.05em;">Powered by <span style="color:var(--orange);">NAPA DEVELOPMENT</span></a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ── CUSTOM CURSOR ── */
+const cursor    = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+});
+
+(function animRing() {
+  rx += (mx - rx) * 0.13;
+  ry += (my - ry) * 0.13;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top  = ry + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+document.querySelectorAll('a, button, .course-card, .category-row, .feature-card, .team-card, .testimonial-card, .faq-question').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); cursorRing.classList.add('hover'); });
+  el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); cursorRing.classList.remove('hover'); });
+});
+
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── ACTIVE NAV LINK ── */
+function setActiveLink(pageId) {
+  document.querySelectorAll('.nav-links a[data-page]').forEach(a => {
+    a.classList.toggle('active-link', a.dataset.page === pageId);
+  });
+}
+
+/* ── PAGE TRANSITION ── */
+function showPage(id, e) {
+  if (e) e.preventDefault();
+  const pt = document.getElementById('pageTransition');
+  pt.classList.add('entering');
+  setTimeout(() => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setActiveLink(id);
+    pt.classList.remove('entering');
+    pt.classList.add('leaving');
+    setTimeout(() => pt.classList.remove('leaving'), 600);
+    initAnimations();
+    if (id === 'home') animateCounters();
+    if (id === 'about') initStatBars();
+  }, 380);
+}
+
+/* ── HAMBURGER ── */
+function toggleMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const ham  = document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  ham.classList.toggle('open');
+  document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+}
+
+/* ── SCROLL ANIMATIONS ── */
+function initAnimations() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.active .fade-up, .active .fade-left, .active .fade-right').forEach(el => {
+    el.classList.remove('visible');
+    obs.observe(el);
+  });
+}
+
+/* ── COUNTER ANIMATION ── */
+function animateCounters() {
+  document.querySelectorAll('#home [data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    let current  = 0;
+    const step   = target / 55;
+    const timer  = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        const suffix = target === 98 ? '%' : target === 10 ? '+' : target === 500 ? '+' : '';
+        el.textContent = target + suffix;
+        clearInterval(timer);
+      } else {
+        el.textContent = Math.floor(current);
+      }
+    }, 22);
+  });
+}
+
+/* ── STAT BARS ── */
+function initStatBars() {
+  setTimeout(() => {
+    document.querySelectorAll('#about .stat-bar-fill').forEach(bar => {
+      bar.classList.add('animated');
+    });
+  }, 400);
+}
+
+/* ── FAQ TOGGLE ── */
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── MARQUEE DUPLICATE ── */
+function initMarquee() {
+  const track = document.getElementById('marqueeTrack');
+  if (track) track.innerHTML += track.innerHTML;
+}
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded', () => {
+  initMarquee();
+  initAnimations();
+  animateCounters();
+  setActiveLink('home');
+});
+</script>
+</body>
+</html>
